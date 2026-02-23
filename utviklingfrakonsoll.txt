@@ -1,0 +1,232 @@
+mysql> -- visning så man ikke bare ser den pene oppskriften men også galskapen underveis
+
+Database changed
+mysql> CREATE TABLE Courses (
+    ->   id INT PRIMARY KEY AUTO_INCREMENT,
+    ->   courseName TEXT NOT NULL
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Students (
+    ->   studentId TEXT PRIMARY KEY NOT NULL,
+    ->   eventType INT,
+    ->   name TEXT NOT NULL,
+    ->   FOREIGN KEY(eventType) REFERENCES Courses(id)
+    -> );
+ERROR 1170 (42000): BLOB/TEXT column 'studentId' used in key specification without a key length
+mysql> CREATE TABLE Students (
+    ->   studentId VARCHAR(15) PRIMARY KEY NOT NULL,
+    ->   eventType INT,
+    ->   name TEXT NOT NULL,
+    ->   FOREIGN KEY(eventType) REFERENCES Courses(id)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> SHOW TABLES;
++------------------------+
+| Tables_in_regainhonour |
++------------------------+
+| courses                |
+| students               |
++------------------------+
+2 rows in set (0.01 sec)
+
+mysql> CREATE TABLE Events (
+    ->   eventId VARCHAR(15) PRIMARY KEY NOT NULL,
+    ->   studentId VARCHAR(15),
+    ->   courseId INT,
+    ->   FOREIGN KEY(studentId) REFERENCES Students(studentId),
+    ->   FOREIGN KEY(courseId) REFERENCES courses(id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> INSERT INTO courses (courseName) VALUES ("Start IT"), ("Intro"), ("FrontEnd"), ("BackEnd"), ("GET Prepared"), ("GET IT");
+Query OK, 6 rows affected (0.02 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> SHOW TABLES;
++------------------------+
+| Tables_in_regainhonour |
++------------------------+
+| courses                |
+| events                 |
+| students               |
++------------------------+
+3 rows in set (0.00 sec)
+
+mysql> DESCRIBE Students;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| studentId | varchar(15) | NO   | PRI | NULL    |       |
+| eventType | int         | YES  | MUL | NULL    |       |
+| name      | text        | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.02 sec)
+
+mysql> INSERT INTO students VALUES ("c87b943a-66f8-4", )/clear;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')/clear' at line 1
+mysql> DESCRIBE courses; SELECT * FROM courseS;
++------------+------+------+-----+---------+----------------+
+| Field      | Type | Null | Key | Default | Extra          |
++------------+------+------+-----+---------+----------------+
+| id         | int  | NO   | PRI | NULL    | auto_increment |
+| courseName | text | NO   |     | NULL    |                |
++------------+------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
+
++----+--------------+
+| id | courseName   |
++----+--------------+
+|  1 | Start IT     |
+|  2 | Intro        |
+|  3 | FrontEnd     |
+|  4 | BackEnd      |
+|  5 | GET Prepared |
+|  6 | GET IT       |
++----+--------------+
+6 rows in set (0.00 sec)
+
+mysql> INSERT INTO students VALUES ("c87b943a-66f8-4", 2, "Demogoroth Satanum");
+Query OK, 1 row affected (0.02 sec)
+
+mysql> DESCRIBE events;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| eventId   | varchar(15) | NO   | PRI | NULL    |       |
+| studentId | varchar(15) | YES  | MUL | NULL    |       |
+| courseId  | int         | YES  | MUL | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> INSERT INTO events ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"43a-66f8-42e8-9", "c87b943a-66f8-4", 2)' at line 1
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-5", 2);
+ERROR 1062 (23000): Duplicate entry '43a-66f8-42e8-9' for key 'events.PRIMARY'
+mysql> INSERT INTO events VALUES ("43a-66f8-42e810", "c87b943a-66f8-5", 2);
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`regainhonour`.`events`, CONSTRAINT `events_ibfk_1` FOREIGN KEY (`studentId`) REFERENCES `students` (`studentId`))
+mysql> SELECT * FROM events;
++-----------------+-----------------+----------+
+| eventId         | studentId       | courseId |
++-----------------+-----------------+----------+
+| 43a-66f8-42e8-9 | c87b943a-66f8-4 |        2 |
++-----------------+-----------------+----------+
+1 row in set (0.00 sec)
+
+mysql> DELETE FROM events;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO events VALUES ("43a-66f8-42e810", "c87b943a-66f8-5", 2);
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`regainhonour`.`events`, CONSTRAINT `events_ibfk_1` FOREIGN KEY (`studentId`) REFERENCES `students` (`studentId`))
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> DELETE FROM events WHERE eventId = "43a-66f8-42e8-9";
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> DELETE FROM students;
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`regainhonour`.`events`, CONSTRAINT `events_ibfk_1` FOREIGN KEY (`studentId`) REFERENCES `students` (`studentId`))
+mysql> CREATE TABLE whatever (
+    ->   id TEXT PRIMARY KEY NOT NULL,
+    ->   name TEXT NOT NULL
+    ->   , shit INT, -- okay do you work
+    ->   blue BLOB
+    -> );
+ERROR 1170 (42000): BLOB/TEXT column 'id' used in key specification without a key length
+mysql> -- RAAAAAAAAAA!!!!!;
+mysql> CREATE TABLE whatever (
+    ->   id VARCHAR(10) PRIMARY KEY NOT NULL,
+    ->   name TEXT NOT NULL, -- testing testing?
+    ->   lala INT,
+    ->   blue BLOB
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> DROP TABLE whatever;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE Events (
+    ->   eventId VARCHAR(15) PRIMARY KEY NOT NULL,
+    ->   studentId VARCHAR(15),
+    ->   courseId INT,
+    ->   FOREIGN KEY(studentId) REFERENCES Students(studentId), / clear;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '/ clear' at line 5
+mysql> SELECT * FROM Events; SELECT * FROM Students;
++-----------------+-----------------+----------+
+| eventId         | studentId       | courseId |
++-----------------+-----------------+----------+
+| 43a-66f8-42e8-9 | c87b943a-66f8-4 |        2 |
++-----------------+-----------------+----------+
+1 row in set (0.00 sec)
+
++-----------------+-----------+--------------------+
+| studentId       | eventType | name               |
++-----------------+-----------+--------------------+
+| c87b943a-66f8-4 |         2 | Demogoroth Satanum |
++-----------------+-----------+--------------------+
+1 row in set (0.00 sec)
+
+mysql> CREATE TABLE Events_2 (
+    ->   eventId VARCHAR(15) PRIMARY KEY NOT NULL,
+    ->   studentId VARCHAR(15),
+    ->   courseId INT,
+    ->   FOREIGN KEY(studentId) REFERENCES Students(studentId) ON DELETE CASCADE
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> INSERT INTO events_2 VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> DELETE FROM events;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> DELETE FROM students;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`regainhonour`.`events`, CONSTRAINT `events_ibfk_1` FOREIGN KEY (`studentId`) REFERENCES `students` (`studentId`))
+mysql> INSERT INTO students VALUES ("c87b943a-66f8-4", 2, "Demogoroth Satanum");
+Query OK, 1 row affected (0.02 sec)
+
+mysql> INSERT INTO events VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> DELETE FROM students;
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`regainhonour`.`events`, CONSTRAINT `events_ibfk_1` FOREIGN KEY (`studentId`) REFERENCES `students` (`studentId`))
+mysql> INSERT INTO events_2 VALUES ("43a-66f8-42e8-9", "c87b943a-66f8-4", 2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> DELETE FROM events;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM students;
++-----------------+-----------+--------------------+
+| studentId       | eventType | name               |
++-----------------+-----------+--------------------+
+| c87b943a-66f8-4 |         2 | Demogoroth Satanum |
++-----------------+-----------+--------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM events_2;
++-----------------+-----------------+----------+
+| eventId         | studentId       | courseId |
++-----------------+-----------------+----------+
+| 43a-66f8-42e8-9 | c87b943a-66f8-4 |        2 |
++-----------------+-----------------+----------+
+1 row in set (0.00 sec)
+
+mysql> DELETE FROM students;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM students;
+Empty set (0.00 sec)
+
+mysql> SELECT * FROM events_2;
+Empty set (0.00 sec)
